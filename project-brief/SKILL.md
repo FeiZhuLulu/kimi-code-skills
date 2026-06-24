@@ -3,6 +3,8 @@ name: project-brief
 description: Build a task-focused project brief for a specific feature, module, bug, or directory. A lightweight complement to /init — not a full project initialization.
 type: prompt
 disableModelInvocation: false
+arguments:
+  - target
 whenToUse: When the user wants to understand a specific module, prepare to modify a feature, enter unfamiliar code territory, or needs a quick task-level architecture overview. Triggered by "project brief", "模块概览", "这个模块怎么工作的", "帮我看看这个目录", "brief on auth", or similar.
 ---
 
@@ -43,7 +45,11 @@ This skill is **read-only**.
 
 ## Input
 
-The user provides a **target** — one of:
+**Target**: `$target`
+
+If `$target` is empty, ask the user what module, feature, file, directory, or bug they want to understand.
+
+The target can be:
 
 - A module or package name: `auth`, `user-service`, `payment`
 - A file path: `src/api/routes.ts`
@@ -51,8 +57,6 @@ The user provides a **target** — one of:
 - A bug or error reference: `the null pointer in user.ts`
 - A directory: `src/components/`
 - A concept: `how caching works`
-
-If the user doesn't specify a target, ask them what they want to understand.
 
 ## Workflow
 
@@ -65,11 +69,15 @@ Parse the user's input to determine:
 
 ### 2. Locate Relevant Files
 
-Prefer tracked files first to avoid scanning generated/vendor directories:
+Prefer tracked files first. Treat the target as a **literal string**, not a shell expression or regex.
+
+Safe pattern:
 
 ```bash
-git ls-files | grep -i '<target>'
+git ls-files | rg -i --fixed-strings -- '<literal-target>'
 ```
+
+Before running a shell command, quote or escape the target. If the target contains shell metacharacters (`|`, `;`, `&`, `$`, backticks, quotes), avoid Bash and use the `Glob` and `Grep` tools with a literal pattern instead.
 
 If the project is not a git repo, fall back to `Glob`:
 
@@ -94,6 +102,15 @@ If the first search returns more than 50 files, stop broad reading and narrow by
 3. Exported symbol
 4. Nearest tests
 5. User-confirmed subtarget
+
+### 2.5 Read Kimi Context
+
+Check whether these exist and summarize relevant instructions:
+
+- `AGENTS.md` / `.kimi-code/AGENTS.md` — project-level agent instructions
+- `.kimi-code/skills/` / `.agents/skills/` — project-level skills
+
+Summarize only what's relevant to the target module. Do not modify these files.
 
 ### 3. Read Key Files
 

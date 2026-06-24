@@ -1,0 +1,20 @@
+{
+  "name": "kimi-code-skills",
+  "version": "0.1.0",
+  "description": "Practical workflow skills for Kimi Code CLI: commit messages, self review, error diagnosis, project brief, and secret bridge.",
+  "keywords": ["skills", "git", "review", "debugging", "project-brief", "secrets"],
+  "license": "MIT",
+  "skills": [
+    "./commit-craft",
+    "./self-review",
+    "./error-doctor",
+    "./project-brief",
+    "./kimi-secret-bridge"
+  ],
+  "interface": {
+    "displayName": "Kimi Code Skills",
+    "shortDescription": "Commit, review, diagnose, navigate, and protect secrets",
+    "longDescription": "A collection of independent Kimi Code skills for everyday development workflows. Includes a secret bridge with hooks for credential protection.",
+    "developerName": "FeiZhuLulu"
+  }
+}

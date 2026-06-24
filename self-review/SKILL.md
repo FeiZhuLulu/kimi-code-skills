@@ -3,6 +3,8 @@ name: self-review
 description: Review local git changes before commit, focusing on unintended edits, missing tests, bugs, and risky agent-generated changes.
 type: prompt
 disableModelInvocation: false
+arguments:
+  - focus
 whenToUse: When the user wants to check their changes before committing, says "review", "self-review", "自审", "检查改动", "review diff", or wants to confirm that agent modifications are safe.
 ---
 
@@ -20,7 +22,16 @@ Manual invocation:
 
 ```
 /skill:self-review
+/skill:self-review staged only
+/skill:self-review security focus
 ```
+
+**Requested focus**: `$focus`
+
+Supported focus modes:
+- `staged only` — only review staged changes
+- `security focus` — emphasize secret detection and security issues
+- (empty) — default: full checklist review
 
 This skill may be automatically invoked when the user asks to review their changes before committing.
 

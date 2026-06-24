@@ -21,17 +21,31 @@
 
 ## 安装
 
-每个 skill 独立存在，复制你想要的到 Kimi Code skills 文件夹：
+### 一键安装全部 skills
 
 ```bash
+git clone https://github.com/FeiZhuLulu/kimi-code-skills.git
+cd kimi-code-skills
+
 # 用户级（所有项目可用）
+mkdir -p ~/.kimi-code/skills
+cp -r commit-craft self-review error-doctor project-brief kimi-secret-bridge ~/.kimi-code/skills/
+```
+
+### 按需安装
+
+```bash
+# 只装你想要的
 cp -r commit-craft ~/.kimi-code/skills/
 cp -r error-doctor ~/.kimi-code/skills/
-# ... 按需选择
+```
 
-# 或项目级（仅当前项目可用）
+### 项目级安装
+
+```bash
+# 仅当前项目可用
 mkdir -p .kimi-code/skills
-cp -r commit-craft .kimi-code/skills/
+cp -r commit-craft self-review error-doctor project-brief kimi-secret-bridge .kimi-code/skills/
 ```
 
 然后在 Kimi Code 中调用：
@@ -48,11 +62,11 @@ cp -r commit-craft .kimi-code/skills/
 
 ### commit-craft
 
-暂存改动后调用 `/skill:commit-craft`。分析 `git diff --cached`，推断 type 和 scope，生成 2-3 个候选（简洁/标准/详细）。**默认只生成 message，不执行 git commit**，除非你明确要求。
+暂存改动后调用 `/skill:commit-craft`。分析 `git diff --cached`，推断 type 和 scope，生成 2-3 个候选（简洁/标准/详细）。**默认只生成 message，不执行 git commit**，除非你明确要求。支持参数：`/skill:commit-craft staged only`。
 
 ### self-review
 
-提交前调用 `/skill:self-review`。检查 diff 中的 debug 残留、无关改动、缺失测试、类型绕过、吞掉的错误，以及 agent 引入的其他问题。输出结构化报告（Critical / Warning / Info）。
+提交前调用 `/skill:self-review`。检查 diff 中的 debug 残留、无关改动、缺失测试、类型绕过、吞掉的错误，以及 agent 引入的其他问题。输出结构化报告（Critical / Warning / Info）。支持参数：`/skill:self-review security focus`。
 
 ### error-doctor
 
@@ -65,6 +79,16 @@ cp -r commit-craft .kimi-code/skills/
 ### kimi-secret-bridge
 
 任务需要 API key 或 token 时调用 `/skill:kimi-secret-bridge`。建立本地 secret bridge：secret 存在 `.env` 文件里，命令通过 wrapper 执行，hook 拦截误粘贴和误读取。详见 [skill README](./kimi-secret-bridge/README.md)。
+
+**注意**：hook 使用项目相对路径。切换到未 setup 的项目时，hook 会因脚本不存在而 fail-open（放行）。
+
+## 测试
+
+```bash
+node tests/test-secret-bridge.mjs
+```
+
+验证 kimi-secret-bridge 的 wrapper 和 hook 脚本是否正常工作。
 
 ## 设计原则
 
@@ -89,16 +113,45 @@ cp -r commit-craft .kimi-code/skills/
 
 ## English
 
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
+[![Kimi Code](https://img.shields.io/badge/Kimi-Code-7c3aed.svg)](https://github.com/MoonshotAI/kimi-code)
+
 A collection of independent, practical skills for [Kimi Code CLI](https://github.com/MoonshotAI/kimi-code). Each skill is a standalone directory — copy the ones you need to your skills folder and go.
 
-| Skill | Purpose |
-|-------|---------|
-| **commit-craft** | Generate Conventional Commit messages from git changes |
-| **self-review** | Pre-commit review: catch debug leftovers, agent mistakes, missing tests |
-| **error-doctor** | Structured error diagnosis with hypotheses and minimal fixes |
-| **project-brief** | Task-focused code navigation for a specific module or feature |
-| **kimi-secret-bridge** | Prevent API keys/tokens from leaking into conversations and logs |
+### Skills
 
-Install by copying skill directories to `~/.kimi-code/skills/` or `.kimi-code/skills/`. See skill directories for detailed documentation.
+| Skill | Purpose | Trigger |
+|-------|---------|---------|
+| [**commit-craft**](./commit-craft) | Generate Conventional Commit messages from git changes | `/skill:commit-craft` |
+| [**self-review**](./self-review) | Pre-commit review: catch debug leftovers, agent mistakes, missing tests | `/skill:self-review` |
+| [**error-doctor**](./error-doctor) | Structured error diagnosis with hypotheses and minimal fixes | `/skill:error-doctor` |
+| [**project-brief**](./project-brief) | Task-focused code navigation for a specific module or feature | `/skill:project-brief <target>` |
+| [**kimi-secret-bridge**](./kimi-secret-bridge) | Prevent API keys/tokens from leaking into conversations and logs | `/skill:kimi-secret-bridge` |
+
+### Quick Install
+
+```bash
+git clone https://github.com/FeiZhuLulu/kimi-code-skills.git
+cd kimi-code-skills
+mkdir -p ~/.kimi-code/skills
+cp -r commit-craft self-review error-doctor project-brief kimi-secret-bridge ~/.kimi-code/skills/
+```
+
+Then invoke in Kimi Code: `/skill:commit-craft`, `/skill:self-review`, etc.
+
+### Key Design Decisions
+
+- **Pure SKILL.md first** — most skills are Markdown-only, zero code dependencies
+- **Diagnose before fixing** — error-doctor and self-review prioritize understanding over action
+- **Generate, don't execute** — commit-craft produces messages; commits only when explicitly asked
+- **Complement, don't replace** — project-brief complements `/init`, doesn't duplicate it
+- **Kimi Code adapted** — all skills include session safety rules and secret-bridge integration
+- **kimi-secret-bridge** is the flagship skill — wrapper + hooks + env injection, 24/24 tests passing
+
+### Testing
+
+```bash
+node tests/test-secret-bridge.mjs
+```
 
 [MIT](LICENSE)

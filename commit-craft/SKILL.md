@@ -3,6 +3,8 @@ name: commit-craft
 description: Generate Conventional Commit messages from staged or unstaged git changes, with type and scope inference.
 type: prompt
 disableModelInvocation: false
+arguments:
+  - mode
 whenToUse: When the user asks to generate a commit message, prepare a commit, says "commit", "提交", "提交信息", or wants to organize their changes into a well-formatted message before committing.
 ---
 
@@ -19,7 +21,17 @@ Manual invocation:
 ```
 /skill:commit-craft
 /skill:commit-craft staged only
+/skill:commit-craft unstaged diff
+/skill:commit-craft split
 ```
+
+**Requested mode**: `$mode`
+
+Supported modes:
+- `staged only` — only analyze staged changes
+- `unstaged diff` — analyze unstaged changes
+- `split` — suggest splitting into multiple commits
+- (empty) — default behavior: prefer staged, fall back to unstaged
 
 This skill may be automatically invoked when the user asks for a commit message, but it must not run `git commit` unless the user explicitly asks to create the commit now.
 
